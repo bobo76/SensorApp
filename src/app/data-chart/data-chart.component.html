@@ -1,0 +1,17 @@
+
+<label for="host">Select Host:</label>
+<select [(ngModel)]="selectedHost" id="host">
+  <option *ngFor="let host of hosts | async; trackBy: trackByHostId" [value]="host.hostName">
+    {{ host.hostName }}
+  </option>
+</select>
+
+<p>Selected Host: {{ selectedHost }}</p>
+
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>
+
+<div class="chart-container">
+  <canvas id="MyChart">{{ chart }}</canvas>
+</div>
