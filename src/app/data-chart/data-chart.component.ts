@@ -6,11 +6,22 @@ import { ArduinoUnit, SensorData } from '../model';
 import { ArduinoService } from '../services/arduino.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @Component({
   standalone: true,
   selector: 'app-data-chart',
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDatepickerModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatNativeDateModule,
+  ],
   templateUrl: './data-chart.component.html',
   styleUrl: './data-chart.component.scss',
 })
@@ -37,11 +48,22 @@ export class DataChartComponent implements OnInit, OnDestroy {
   public hosts: Observable<ArduinoUnit[]> | undefined = undefined;
   public errorMessage: string | undefined;
   public isDarkMode: boolean = false;
+  public startDate: Date;
+  public endDate: Date;
 
   public historicalData: SensorData[] = [];
   private service = inject(DataChartService);
   private arduinoService = inject(ArduinoService);
   private destroy$ = new Subject<void>();
+
+  constructor() {
+    // Set end date to today
+    this.endDate = new Date();
+
+    // Set start date to 2 weeks ago
+    this.startDate = new Date();
+    this.startDate.setDate(this.startDate.getDate() - 14);
+  }
 
   ngOnInit(): void {
     this.hosts = this.arduinoService.getArduinoList();
@@ -58,6 +80,12 @@ export class DataChartComponent implements OnInit, OnDestroy {
   onHostChange(hostName: string): void {
     if (hostName) {
       this.loadChartData(hostName);
+    }
+  }
+
+  onDateChange(): void {
+    if (this.selectedHost && this.startDate && this.endDate) {
+      this.loadChartData(this.selectedHost);
     }
   }
 
@@ -123,11 +151,11 @@ export class DataChartComponent implements OnInit, OnDestroy {
   }
 
   private loadChartData(machineName: string): void {
-    const startDate = '2023-08-01T00:00:00Z';
-    const endDate = '2025-10-01T00:00:00Z';
+    const startDateStr = this.startDate.toISOString();
+    const endDateStr = this.endDate.toISOString();
 
     this.service
-      .fetchHistoricalData(machineName, startDate, endDate)
+      .fetchHistoricalData(machineName, startDateStr, endDateStr)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
