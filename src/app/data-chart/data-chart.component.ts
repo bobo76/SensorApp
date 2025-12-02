@@ -1,6 +1,6 @@
 import { CommonModule, formatDate } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { Chart } from 'chart.js/auto';
+import { Chart, PointPrefixedHoverOptions } from 'chart.js/auto';
 import { DataChartService } from './data-chart.service';
 import { ArduinoUnit, SensorData } from '../model';
 import { ArduinoService } from '../services/arduino.service';
@@ -15,14 +15,28 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './data-chart.component.scss',
 })
 export class DataChartComponent implements OnInit, OnDestroy {
-  private readonly TEMP_COLOR = 'red';
-  private readonly HUM_COLOR = 'blue';
   private readonly CHART_ASPECT_RATIO = 3;
+
+  // Theme-aware colors
+  private readonly LIGHT_MODE_COLORS = {
+    temperature: '#ef4444', // red-500
+    humidity: '#3b82f6', // blue-500
+    grid: '#e5e7eb', // gray-200
+    text: '#6b7280', // gray-500
+  };
+
+  private readonly DARK_MODE_COLORS = {
+    temperature: '#f87171', // red-400 (brighter for dark bg)
+    humidity: '#60a5fa', // blue-400 (brighter for dark bg)
+    grid: '#374151', // gray-700
+    text: '#9ca3af', // gray-400
+  };
 
   public chart: Chart | undefined;
   public selectedHost: string | undefined = undefined;
   public hosts: Observable<ArduinoUnit[]> | undefined = undefined;
   public errorMessage: string | undefined;
+  public isDarkMode: boolean = false;
 
   public historicalData: SensorData[] = [];
   private service = inject(DataChartService);
@@ -32,9 +46,86 @@ export class DataChartComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.hosts = this.arduinoService.getArduinoList();
 
-    const machineName = 'albert.local';
+    // Load theme preference from localStorage
+    const savedTheme = localStorage.getItem('theme');
+    this.isDarkMode = savedTheme === 'dark';
+
+    // Set initial host
+    this.selectedHost = 'albert.local';
+    this.loadChartData(this.selectedHost);
+  }
+
+  onHostChange(hostName: string): void {
+    if (hostName) {
+      this.loadChartData(hostName);
+    }
+  }
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+
+    // Regenerate chart with new theme colors
+    if (this.chart && this.selectedHost) {
+      this.updateChartColors();
+    }
+  }
+
+  private getThemeColors() {
+    return this.isDarkMode ? this.DARK_MODE_COLORS : this.LIGHT_MODE_COLORS;
+  }
+
+  private updateChartColors(): void {
+    if (!this.chart || !this.selectedHost) return;
+
+    const colors = this.getThemeColors();
+
+    // Update dataset colors
+    if (this.chart.data.datasets[0]) {
+      console.log(this.chart.data.datasets[0]);
+      this.chart.data.datasets[0].borderColor = colors.temperature;
+      this.chart.data.datasets[0].backgroundColor = colors.temperature;
+      (
+        this.chart.data.datasets[0] as PointPrefixedHoverOptions
+      ).pointHoverBackgroundColor = colors.temperature;
+    }
+    if (this.chart.data.datasets[1]) {
+      this.chart.data.datasets[1].borderColor = colors.humidity;
+      this.chart.data.datasets[1].backgroundColor = colors.humidity;
+      (
+        this.chart.data.datasets[1] as PointPrefixedHoverOptions
+      ).pointHoverBackgroundColor = colors.humidity;
+    }
+
+    // Update grid and text colors
+    if (this.chart.options.scales) {
+      const scaleOptions = {
+        grid: { color: colors.grid },
+        ticks: { color: colors.text },
+      };
+
+      if (this.chart.options.scales['x']) {
+        this.chart.options.scales['x'].grid = scaleOptions.grid;
+        this.chart.options.scales['x'].ticks = scaleOptions.ticks;
+      }
+      if (this.chart.options.scales['y']) {
+        this.chart.options.scales['y'].grid = scaleOptions.grid;
+        this.chart.options.scales['y'].ticks = scaleOptions.ticks;
+      }
+    }
+
+    // Update legend text color
+    if (this.chart.options.plugins?.legend?.labels) {
+      this.chart.options.plugins.legend.labels.color = colors.text;
+    }
+
+    this.chart.update();
+  }
+
+  private loadChartData(machineName: string): void {
     const startDate = '2023-08-01T00:00:00Z';
     const endDate = '2025-10-01T00:00:00Z';
+
     this.service
       .fetchHistoricalData(machineName, startDate, endDate)
       .pipe(takeUntil(this.destroy$))
@@ -43,10 +134,34 @@ export class DataChartComponent implements OnInit, OnDestroy {
           this.historicalData = data;
           this.errorMessage = undefined;
 
+          // Destroy existing chart before creating a new one
+          if (this.chart) {
+            this.chart.destroy();
+          }
+
+          const colors = this.getThemeColors();
+
           this.chart = new Chart('MyChart', {
             type: 'line',
             data: this.prepareChartData(data, machineName),
-            options: { aspectRatio: this.CHART_ASPECT_RATIO },
+            options: {
+              aspectRatio: this.CHART_ASPECT_RATIO,
+              scales: {
+                x: {
+                  grid: { color: colors.grid },
+                  ticks: { color: colors.text },
+                },
+                y: {
+                  grid: { color: colors.grid },
+                  ticks: { color: colors.text },
+                },
+              },
+              plugins: {
+                legend: {
+                  labels: { color: colors.text },
+                },
+              },
+            },
           });
         },
         error: (error) => {
@@ -74,6 +189,8 @@ export class DataChartComponent implements OnInit, OnDestroy {
   }
 
   private prepareChartData(data: SensorData[], machineName: string) {
+    const colors = this.getThemeColors();
+
     // Create maps from formatted date to value for temperature and humidity
     const tempMap = new Map<string, number>();
     const humMap = new Map<string, number>();
@@ -97,17 +214,31 @@ export class DataChartComponent implements OnInit, OnDestroy {
     datasets.push({
       label: `${machineName} Temperature`,
       data: tempData,
-      borderColor: this.TEMP_COLOR,
+      borderColor: colors.temperature,
+      backgroundColor: colors.temperature,
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: colors.temperature,
+      pointHoverBorderColor: '#ffffff',
+      pointHoverBorderWidth: 2,
       fill: false,
-      tension: 0.1,
+      tension: 0.4,
     });
 
     datasets.push({
       label: `${machineName} Humidity`,
       data: humData,
-      borderColor: this.HUM_COLOR,
+      borderColor: colors.humidity,
+      backgroundColor: colors.humidity,
+      borderWidth: 2,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointHoverBackgroundColor: colors.humidity,
+      pointHoverBorderColor: '#ffffff',
+      pointHoverBorderWidth: 2,
       fill: false,
-      tension: 0.1,
+      tension: 0.4,
     });
 
     return { labels: allDates, datasets };

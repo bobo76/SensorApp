@@ -1,17 +1,45 @@
+<div class="dashboard-container" [class.dark-mode]="isDarkMode">
+  <div class="header-section">
+    <div class="title-bar">
+      <h1 class="dashboard-title">Sensor Data Dashboard</h1>
 
-<label for="host">Select Host:</label>
-<select [(ngModel)]="selectedHost" id="host">
-  <option *ngFor="let host of hosts | async; trackBy: trackByHostId" [value]="host.hostName">
-    {{ host.hostName }}
-  </option>
-</select>
+      <button class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+        <svg *ngIf="!isDarkMode" class="theme-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+        <svg *ngIf="isDarkMode" class="theme-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <span class="theme-label">{{ isDarkMode ? 'Dark' : 'Light' }}</span>
+      </button>
+    </div>
 
-<p>Selected Host: {{ selectedHost }}</p>
+    <div class="control-panel">
+      <div class="form-group">
+        <label for="host" class="form-label">Select Arduino Unit</label>
+        <div class="select-wrapper">
+          <select
+            [(ngModel)]="selectedHost"
+            (ngModelChange)="onHostChange($event)"
+            id="host"
+            class="form-select">
+            <option *ngFor="let host of hosts | async; trackBy: trackByHostId" [value]="host.hostName">
+              {{ host.hostName }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-<div *ngIf="errorMessage" class="error-message">
-  {{ errorMessage }}
-</div>
+    <div *ngIf="errorMessage" class="error-message">
+      <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+      </svg>
+      {{ errorMessage }}
+    </div>
+  </div>
 
-<div class="chart-container">
-  <canvas id="MyChart">{{ chart }}</canvas>
+  <div class="chart-container">
+    <canvas id="MyChart">{{ chart }}</canvas>
+  </div>
 </div>
