@@ -8,7 +8,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class DataChartService {
-  private apiUrl = `${environment.apiUrl}/data/historicalData`;
+  private historicalDataUrl = `${environment.apiUrl}/data/historicalData`;
+  private currentDataUrl = `${environment.apiUrl}/data/current`;
   private http = inject(HttpClient);
 
   public fetchHistoricalData(
@@ -20,6 +21,11 @@ export class DataChartService {
       .set('machineName', machineName)
       .set('startDate', startDate)
       .set('endDate', endDate);
-    return this.http.get<SensorData[]>(this.apiUrl, { params });
+    return this.http.get<SensorData[]>(this.historicalDataUrl, { params });
+  }
+
+  public getCurrentData(machineName: string): Observable<SensorData> {
+    const params = new HttpParams().set('machineName', machineName);
+    return this.http.get<SensorData>(this.currentDataUrl, { params });
   }
 }

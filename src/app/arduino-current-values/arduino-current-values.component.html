@@ -1,0 +1,61 @@
+<div class="current-values-container">
+  <div class="header">
+    <h1 class="title">Current Sensor Values</h1>
+    <p class="subtitle">Real-time temperature and humidity readings (auto-refreshes every 30s)</p>
+  </div>
+
+  <div class="loading-container" *ngIf="loading && arduinoData.length === 0">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading current values...</p>
+  </div>
+
+  <div class="error-container" *ngIf="error && arduinoData.length === 0">
+    <mat-icon class="error-icon">error</mat-icon>
+    <p>Failed to load Arduino units. Please check your connection.</p>
+  </div>
+
+  <div class="cards-grid" *ngIf="arduinoData.length > 0">
+    <mat-card *ngFor="let item of arduinoData" class="sensor-card" [class.error-card]="item.error">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="device-icon">memory</mat-icon>
+        <mat-card-title>{{ item.unit.hostName }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div *ngIf="!item.error && item.currentData" class="sensor-data">
+          <div class="data-row temperature">
+            <div class="data-icon">
+              <mat-icon>thermostat</mat-icon>
+            </div>
+            <div class="data-content">
+              <span class="data-label">Temperature</span>
+              <span class="data-value">{{ item.currentData.temperature }}°C</span>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="data-row humidity">
+            <div class="data-icon">
+              <mat-icon>water_drop</mat-icon>
+            </div>
+            <div class="data-content">
+              <span class="data-label">Humidity</span>
+              <span class="data-value">{{ item.currentData.humidity }}%</span>
+            </div>
+          </div>
+
+          <div class="timestamp">
+            <mat-icon class="timestamp-icon">schedule</mat-icon>
+            <span>{{ item.currentData.creationDate | date:'short' }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="item.error" class="error-state">
+          <mat-icon class="error-icon">cloud_off</mat-icon>
+          <p>Unable to fetch current data</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

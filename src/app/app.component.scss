@@ -1,0 +1,89 @@
+.app-container {
+  height: 100vh;
+  background-color: var(--bg-primary);
+  transition: background-color 0.3s ease;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.sidenav-container {
+  height: calc(100vh - 64px);
+  overflow: hidden;
+  background-color: var(--bg-primary);
+
+  .navigation-sidenav {
+    width: 250px;
+    padding: 16px 0;
+    border-left: 1px solid var(--border-primary);
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: var(--bg-secondary);
+
+    mat-nav-list {
+      padding-top: 0;
+
+      h3 {
+        padding: 0 16px;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      a {
+        margin: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        color: var(--text-primary);
+        font-weight: 500;
+
+        &:hover {
+          background-color: var(--bg-tertiary);
+        }
+
+        &.active-link {
+          background-color: rgba(0, 188, 212, 0.15);
+          color: #00bcd4;
+
+          mat-icon {
+            color: #00bcd4;
+          }
+        }
+
+        mat-icon {
+          color: var(--text-secondary);
+        }
+      }
+    }
+  }
+
+  mat-sidenav-content {
+    padding: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: var(--bg-primary);
+  }
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+// Dark mode specific Material overrides
+.dark-mode {
+  mat-toolbar {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+  }
+
+  mat-sidenav {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  mat-sidenav-content {
+    background-color: var(--bg-primary) !important;
+  }
+}

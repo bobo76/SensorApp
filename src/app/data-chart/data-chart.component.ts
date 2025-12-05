@@ -4,6 +4,7 @@ import { Chart, PointPrefixedHoverOptions } from 'chart.js/auto';
 import { DataChartService } from './data-chart.service';
 import { ArduinoUnit, SensorData } from '../model';
 import { ArduinoService } from '../services/arduino.service';
+import { ThemeService } from '../services/theme.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -47,14 +48,15 @@ export class DataChartComponent implements OnInit, OnDestroy {
   public selectedHost: string | undefined = undefined;
   public hosts: Observable<ArduinoUnit[]> | undefined = undefined;
   public errorMessage: string | undefined;
-  public isDarkMode: boolean = false;
   public startDate: Date;
   public endDate: Date;
 
   public historicalData: SensorData[] = [];
   private service = inject(DataChartService);
   private arduinoService = inject(ArduinoService);
+  private themeService = inject(ThemeService);
   private destroy$ = new Subject<void>();
+  private isDarkMode: boolean = false;
 
   constructor() {
     // Set end date to today
@@ -68,9 +70,16 @@ export class DataChartComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.hosts = this.arduinoService.getArduinoList();
 
-    // Load theme preference from localStorage
-    const savedTheme = localStorage.getItem('theme');
-    this.isDarkMode = savedTheme === 'dark';
+    // Subscribe to theme changes
+    this.themeService.isDarkMode$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(isDark => {
+        this.isDarkMode = isDark;
+        // Update chart colors when theme changes
+        if (this.chart) {
+          this.updateChartColors();
+        }
+      });
 
     // Set initial host
     this.selectedHost = 'albert.local';
@@ -89,16 +98,6 @@ export class DataChartComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTheme(): void {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-
-    // Regenerate chart with new theme colors
-    if (this.chart && this.selectedHost) {
-      this.updateChartColors();
-    }
-  }
-
   private getThemeColors() {
     return this.isDarkMode ? this.DARK_MODE_COLORS : this.LIGHT_MODE_COLORS;
   }
@@ -110,7 +109,6 @@ export class DataChartComponent implements OnInit, OnDestroy {
 
     // Update dataset colors
     if (this.chart.data.datasets[0]) {
-      console.log(this.chart.data.datasets[0]);
       this.chart.data.datasets[0].borderColor = colors.temperature;
       this.chart.data.datasets[0].backgroundColor = colors.temperature;
       (

@@ -1,0 +1,232 @@
+.current-values-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0;
+
+  .header {
+    margin-bottom: 2rem;
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 0.5rem 0;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+  }
+
+  .loading-container,
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+
+    p {
+      font-size: 1.125rem;
+      color: var(--text-tertiary);
+      margin: 0;
+    }
+
+    .error-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--error-icon);
+    }
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .sensor-card {
+    transition: all 0.2s ease;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    background-color: var(--bg-secondary);
+
+    &:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    &.error-card {
+      border: 2px solid var(--error-border);
+      background-color: var(--error-bg);
+    }
+
+    mat-card-header {
+      padding: 1.25rem 1.25rem 0.5rem;
+
+      .device-icon {
+        background-color: #00bcd4;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+      }
+
+      mat-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+    }
+
+    mat-card-content {
+      padding: 1.25rem;
+    }
+  }
+
+  .sensor-data {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .data-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+
+      &.temperature {
+        background-color: #fee2e2;
+
+        .data-icon mat-icon {
+          color: #dc2626;
+        }
+      }
+
+      &.humidity {
+        background-color: #dbeafe;
+
+        .data-icon mat-icon {
+          color: #2563eb;
+        }
+      }
+
+      .data-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+          font-size: 32px;
+          width: 32px;
+          height: 32px;
+        }
+      }
+
+      .data-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .data-label {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: var(--text-tertiary);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .data-value {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--border-primary);
+      margin: 0.25rem 0;
+    }
+
+    .timestamp {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background-color: var(--bg-secondary);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--text-tertiary);
+
+      .timestamp-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    gap: 1rem;
+    text-align: center;
+
+    .error-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: var(--error-icon);
+    }
+
+    p {
+      font-size: 0.875rem;
+      color: var(--error-text);
+      margin: 0;
+    }
+  }
+}
+
+// Dark mode overrides
+:host-context(.dark-mode) {
+  .sensor-data {
+    .data-row {
+      &.temperature {
+        background-color: rgba(239, 68, 68, 0.15);
+      }
+
+      &.humidity {
+        background-color: rgba(59, 130, 246, 0.15);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .current-values-container {
+    .header .title {
+      font-size: 1.5rem;
+    }
+
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

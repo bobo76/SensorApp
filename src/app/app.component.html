@@ -1,1 +1,50 @@
-<app-data-chart></app-data-chart>
+<div class="app-container" [class.dark-mode]="isDarkMode">
+  <mat-toolbar color="primary">
+    <span>Room Sensors App</span>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="toggleTheme()" [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+    <button mat-icon-button (click)="sidenavOpened = !sidenavOpened">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav
+      #sidenav
+      mode="side"
+      position="end"
+      [(opened)]="sidenavOpened"
+      class="navigation-sidenav">
+      <mat-nav-list>
+        <h3 mat-subheader>Navigation</h3>
+
+        <a mat-list-item
+           routerLink="/dashboard"
+           routerLinkActive="active-link">
+          <mat-icon matListItemIcon>dashboard</mat-icon>
+          <span matListItemTitle>Data Dashboard</span>
+        </a>
+
+        <a mat-list-item
+           routerLink="/current-values"
+           routerLinkActive="active-link">
+          <mat-icon matListItemIcon>sensors</mat-icon>
+          <span matListItemTitle>Current Values</span>
+        </a>
+
+        <a mat-list-item
+           routerLink="/management"
+           routerLinkActive="active-link">
+          <mat-icon matListItemIcon>settings</mat-icon>
+          <span matListItemTitle>Arduino Management</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
