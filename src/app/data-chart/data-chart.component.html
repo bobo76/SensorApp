@@ -21,6 +21,14 @@
       </div>
 
       <div class="date-pickers">
+        <button
+          mat-icon-button
+          (click)="navigateDateRange('previous')"
+          class="date-nav-button"
+          aria-label="Previous date range">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
         <div class="date-field-group">
           <label class="form-label">Start Date</label>
           <mat-form-field appearance="outline" class="date-field">
@@ -46,6 +54,14 @@
             <mat-datepicker #endPicker></mat-datepicker>
           </mat-form-field>
         </div>
+
+        <button
+          mat-icon-button
+          (click)="navigateDateRange('next')"
+          class="date-nav-button"
+          aria-label="Next date range">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
       </div>
     </div>
 

@@ -11,6 +11,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   standalone: true,
@@ -22,6 +24,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatInputModule,
     MatFormFieldModule,
     MatNativeDateModule,
+    MatButtonModule,
+    MatIconModule,
   ],
   templateUrl: './data-chart.component.html',
   styleUrl: './data-chart.component.scss',
@@ -73,7 +77,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
     // Subscribe to theme changes
     this.themeService.isDarkMode$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(isDark => {
+      .subscribe((isDark) => {
         this.isDarkMode = isDark;
         // Update chart colors when theme changes
         if (this.chart) {
@@ -94,6 +98,30 @@ export class DataChartComponent implements OnInit, OnDestroy {
 
   onDateChange(): void {
     if (this.selectedHost && this.startDate && this.endDate) {
+      this.loadChartData(this.selectedHost);
+    }
+  }
+
+  navigateDateRange(direction: 'previous' | 'next'): void {
+    // Calculate the number of days between start and end
+    const daysDifference = Math.ceil(
+      (this.endDate.getTime() - this.startDate.getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+
+    // Shift both dates by the same interval
+    const multiplier = direction === 'next' ? 1 : -1;
+
+    this.startDate = new Date(this.startDate);
+    this.startDate.setDate(
+      this.startDate.getDate() + daysDifference * multiplier
+    );
+
+    this.endDate = new Date(this.endDate);
+    this.endDate.setDate(this.endDate.getDate() + daysDifference * multiplier);
+
+    // Reload chart data with new date range
+    if (this.selectedHost) {
       this.loadChartData(this.selectedHost);
     }
   }
