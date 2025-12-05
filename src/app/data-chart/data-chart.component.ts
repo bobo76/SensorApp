@@ -33,7 +33,7 @@ import { MatChipsModule } from '@angular/material/chips';
   styleUrl: './data-chart.component.scss',
 })
 export class DataChartComponent implements OnInit, OnDestroy {
-  private readonly CHART_ASPECT_RATIO = 3;
+  private readonly CHART_ASPECT_RATIO = this.getResponsiveAspectRatio();
 
   // Theme-aware colors
   private readonly LIGHT_MODE_COLORS = {
@@ -88,9 +88,20 @@ export class DataChartComponent implements OnInit, OnDestroy {
         }
       });
 
+    // Handle window resize for responsive chart
+    window.addEventListener('resize', this.onWindowResize.bind(this));
+
     // Set initial host
     this.selectedHost = 'albert.local';
     this.loadChartData(this.selectedHost);
+  }
+
+  private onWindowResize(): void {
+    if (this.chart && this.chart.options) {
+      const newAspectRatio = this.getResponsiveAspectRatio();
+      this.chart.options.aspectRatio = newAspectRatio;
+      this.chart.resize();
+    }
   }
 
   onHostChange(hostName: string): void {
@@ -170,6 +181,16 @@ export class DataChartComponent implements OnInit, OnDestroy {
     return this.isDarkMode ? this.DARK_MODE_COLORS : this.LIGHT_MODE_COLORS;
   }
 
+  private getResponsiveAspectRatio(): number {
+    const width = window.innerWidth;
+    if (width <= 480) {
+      return 1.5; // More square on mobile
+    } else if (width <= 768) {
+      return 2; // Moderate ratio on tablets
+    }
+    return 3; // Wide ratio on desktop
+  }
+
   private updateChartColors(): void {
     if (!this.chart || !this.selectedHost) return;
 
@@ -239,11 +260,19 @@ export class DataChartComponent implements OnInit, OnDestroy {
             type: 'line',
             data: this.prepareChartData(data, machineName),
             options: {
-              aspectRatio: this.CHART_ASPECT_RATIO,
+              responsive: true,
+              maintainAspectRatio: true,
+              aspectRatio: this.getResponsiveAspectRatio(),
               scales: {
                 x: {
                   grid: { color: colors.grid },
-                  ticks: { color: colors.text },
+                  ticks: {
+                    color: colors.text,
+                    maxRotation: 45,
+                    minRotation: 0,
+                    autoSkip: true,
+                    maxTicksLimit: window.innerWidth <= 480 ? 6 : 10,
+                  },
                 },
                 y: {
                   grid: { color: colors.grid },
@@ -252,8 +281,23 @@ export class DataChartComponent implements OnInit, OnDestroy {
               },
               plugins: {
                 legend: {
-                  labels: { color: colors.text },
+                  labels: {
+                    color: colors.text,
+                    boxWidth: window.innerWidth <= 480 ? 30 : 40,
+                    font: {
+                      size: window.innerWidth <= 480 ? 11 : 12,
+                    },
+                  },
                 },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                },
+              },
+              interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false,
               },
             },
           });
@@ -268,6 +312,9 @@ export class DataChartComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+
+    // Remove resize listener
+    window.removeEventListener('resize', this.onWindowResize.bind(this));
 
     if (this.chart) {
       this.chart.destroy();

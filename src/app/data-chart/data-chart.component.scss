@@ -399,46 +399,69 @@
 }
 
 // Responsive design
+@media (max-width: 1024px) {
+  .dashboard-container { max-width: 100%; padding: 1.5rem; }
+  .control-row { gap: 0.5rem; }
+  .preset-group { margin-left: 0.5rem; }
+}
+
 @media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
-
-  .dashboard-title {
-    font-size: 1.5rem;
-  }
-
-  .control-row {
-    gap: 0.5rem;
-  }
-
-  .form-group-compact {
-    min-width: 100%;
-    max-width: 100%;
-    order: 1;
-  }
-
+  .dashboard-container { padding: 1rem; }
+  .dashboard-title { font-size: 1.5rem; }
+  .control-panel { padding: 0.75rem; }
+  .control-row { gap: 0.5rem; justify-content: flex-start; }
+  .form-group-compact { min-width: calc(50% - 0.25rem); max-width: calc(50% - 0.25rem); order: 1; }
+  .date-nav-button { order: 2; margin-bottom: 0.3rem; }
+  .date-field-group { min-width: calc(50% - 42px); max-width: calc(50% - 42px); order: 2; }
   .preset-group {
-    width: 100%;
-    order: 3;
-    margin-left: 0;
-
-    .preset-chips ::ng-deep .mdc-evolution-chip-set__chips {
-      justify-content: flex-start;
-    }
+    width: 100%; order: 3; margin-left: 0; margin-top: 0.5rem;
+    .preset-chips ::ng-deep .mdc-evolution-chip-set__chips { justify-content: flex-start; flex-wrap: wrap; }
   }
+  .chart-container { padding: 1rem; min-height: 300px; }
+  .error-message { padding: 0.75rem 1rem; font-size: 0.8125rem; }
+}
 
-  .date-field-group,
+@media (max-width: 480px) {
+  .dashboard-container { padding: 0.75rem; }
+  .header-section { margin-bottom: 1.5rem; }
+  .dashboard-title { font-size: 1.25rem; }
+  .control-panel { padding: 0.5rem; }
+  .control-row { gap: 0.4rem; }
+  .form-group-compact { min-width: 100%; max-width: 100%; }
   .date-nav-button {
-    order: 2;
+    width: 32px; height: 32px;
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
   }
-
   .date-field-group {
-    min-width: 110px;
-    max-width: 130px;
+    min-width: calc(50% - 20px); max-width: calc(50% - 20px);
+    .form-label { font-size: 0.6875rem; }
   }
+  .date-field ::ng-deep {
+    .mat-mdc-form-field-infix { min-height: 34px; padding: 0 0.4rem; }
+    input { font-size: 0.75rem; }
+  }
+  .form-select { font-size: 0.75rem; padding: 0.4rem 1.5rem 0.4rem 0.5rem; height: 34px; }
+  .form-label { font-size: 0.6875rem; }
+  .preset-group {
+    margin-top: 0.4rem;
+    .form-label { font-size: 0.6875rem; }
+  }
+  .preset-chips ::ng-deep {
+    .mat-mdc-chip { font-size: 0.75rem; min-width: 44px; height: 28px; }
+    .mat-mdc-chip-action-label { padding: 0 0.5rem; }
+  }
+  .chart-container { padding: 0.75rem; border-radius: 8px; min-height: 250px; }
+  .error-message { gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.75rem; border-left-width: 3px; }
+  .error-icon { width: 16px; height: 16px; }
+}
 
-  .chart-container {
-    padding: 1rem;
+@media (max-width: 360px) {
+  .dashboard-title { font-size: 1.125rem; }
+  .date-field-group .form-label { font-size: 0.625rem; }
+  .date-field ::ng-deep input { font-size: 0.6875rem; }
+  .preset-chips ::ng-deep {
+    .mat-mdc-chip { font-size: 0.6875rem; min-width: 40px; height: 26px; }
+    .mat-mdc-chip-action-label { padding: 0 0.4rem; letter-spacing: 0.02em; }
   }
+  .chart-container { padding: 0.5rem; min-height: 200px; }
 }
