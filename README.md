@@ -52,6 +52,51 @@ npm run build
 
 Build artifacts will be stored in the `dist/room-sensors-app/` directory.
 
+### Serving on Network
+
+To serve the production build on your local network (accessible from other devices):
+
+#### Option 1: Using http-server (Quick & Simple)
+
+```bash
+# Install http-server globally (one-time)
+npm install -g http-server
+
+# Build and serve on network (e.g., port 8081)
+npm run build
+http-server dist/room-sensors-app/browser -p 8081 -a 0.0.0.0 -P 'http://localhost:8081?'
+```
+
+Access from other devices: `http://<your-local-ip>:8081`
+
+#### Option 2: Using PM2 (Recommended for persistent deployment)
+
+PM2 provides process management, auto-restart, and logging:
+
+```bash
+# Install PM2 globally (one-time)
+npm install -g pm2
+
+# Build the application
+npm run build
+
+# Start the server with PM2 (with SPA routing support)
+pm2 start http-server --name "sensor-app" -- dist/room-sensors-app/browser -p 8081 -a 0.0.0.0 -P 'http://localhost:8081?'
+
+# Manage the application
+pm2 list                # View status
+pm2 logs sensor-app     # View logs
+pm2 stop sensor-app     # Stop server
+pm2 restart sensor-app  # Restart server
+pm2 delete sensor-app   # Remove from PM2
+
+# Auto-start on system boot
+pm2 startup
+pm2 save
+```
+
+**Note:** When accessing from other devices, update `src/environments/environment.prod.ts` to use your machine's IP address instead of `localhost` for the backend API URL.
+
 ### Watch Mode
 
 Run build in watch mode:

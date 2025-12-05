@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:8080' // Update this to production URL when deploying
+  apiUrl: 'http://192.168.1.79:8080' // Local network IP for network access
 };

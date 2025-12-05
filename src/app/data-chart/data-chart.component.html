@@ -5,22 +5,22 @@
     </div>
 
     <div class="control-panel">
-      <div class="form-group">
-        <label for="host" class="form-label">Select Arduino Unit</label>
-        <div class="select-wrapper">
-          <select
-            [(ngModel)]="selectedHost"
-            (ngModelChange)="onHostChange($event)"
-            id="host"
-            class="form-select">
-            <option *ngFor="let host of hosts | async; trackBy: trackByHostId" [value]="host.hostName">
-              {{ host.hostName }}
-            </option>
-          </select>
+      <div class="control-row">
+        <div class="form-group-compact">
+          <label for="host" class="form-label">Arduino Unit</label>
+          <div class="select-wrapper">
+            <select
+              [(ngModel)]="selectedHost"
+              (ngModelChange)="onHostChange($event)"
+              id="host"
+              class="form-select">
+              <option *ngFor="let host of hosts | async; trackBy: trackByHostId" [value]="host.hostName">
+                {{ host.hostName }}
+              </option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div class="date-pickers">
         <button
           mat-icon-button
           (click)="navigateDateRange('previous')"
@@ -62,6 +62,20 @@
           aria-label="Next date range">
           <mat-icon>chevron_right</mat-icon>
         </button>
+
+        <div class="preset-group">
+          <label class="form-label">Quick Range</label>
+          <mat-chip-listbox
+            class="preset-chips"
+            [(ngModel)]="activePreset"
+            (ngModelChange)="applyPreset($event)"
+            aria-label="Quick time range presets">
+            <mat-chip-option value="24h">24H</mat-chip-option>
+            <mat-chip-option value="7d">7D</mat-chip-option>
+            <mat-chip-option value="30d">30D</mat-chip-option>
+            <mat-chip-option value="90d">90D</mat-chip-option>
+          </mat-chip-listbox>
+        </div>
       </div>
     </div>
 

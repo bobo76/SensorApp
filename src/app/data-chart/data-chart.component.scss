@@ -79,43 +79,47 @@
 }
 
 .control-panel {
-  padding: 1.5rem;
+  padding: 0.75rem;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary);
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
 
   &:hover {
     box-shadow: var(--shadow-md);
   }
 }
 
-.form-group {
-  flex: 1;
-  min-width: 200px;
-  max-width: 300px;
+.control-row {
   display: flex;
-  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
-.date-pickers {
+.form-group-compact {
+  min-width: 150px;
+  max-width: 200px;
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  flex: 2;
-  min-width: 320px;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.preset-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-left: auto;
 }
 
 .date-nav-button {
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   transition: all 0.2s ease;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
 
   &:hover {
     background-color: var(--bg-tertiary);
@@ -123,21 +127,64 @@
   }
 
   mat-icon {
-    font-size: 28px;
-    width: 28px;
-    height: 28px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.preset-chips {
+  display: flex;
+  gap: 0.4rem;
+
+  ::ng-deep {
+    .mdc-evolution-chip-set__chips {
+      gap: 0.4rem;
+      display: flex;
+    }
+
+    .mat-mdc-chip {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-primary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      min-width: 48px;
+      height: 32px;
+
+      &:hover {
+        background-color: var(--bg-tertiary);
+        border-color: var(--accent-primary);
+        transform: translateY(-2px);
+      }
+
+      &.mdc-evolution-chip--selected {
+        background-color: var(--accent-primary);
+        color: white;
+        border-color: var(--accent-primary);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+
+    .mat-mdc-chip-action-label {
+      padding: 0 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
   }
 }
 
 .date-field-group {
-  flex: 1;
   min-width: 150px;
+  max-width: 180px;
   display: flex;
   flex-direction: column;
-
-  .form-label {
-    margin-bottom: 0.5rem;
-  }
+  gap: 0.3rem;
 }
 
 .date-field {
@@ -148,22 +195,27 @@
   }
 
   ::ng-deep .mat-mdc-form-field-infix {
-    min-height: 52px;
+    min-height: 38px;
     display: flex;
     align-items: center;
+    padding: 0 0.5rem;
   }
 
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     display: none;
   }
+
+  ::ng-deep input {
+    font-size: 0.8125rem;
+  }
 }
 
 .form-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   letter-spacing: 0.025em;
   transition: color 0.3s ease;
 }
@@ -186,8 +238,8 @@
 
 .form-select {
   width: 100%;
-  padding: 1rem 2.5rem 1rem 1rem;
-  font-size: 1rem;
+  padding: 0.5rem 1.75rem 0.5rem 0.65rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-primary);
   background-color: var(--bg-primary);
@@ -197,8 +249,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
-  height: 56px;
-  margin-top: 4px;
+  height: 38px;
 
   &:hover {
     border-color: var(--accent-primary);
@@ -357,18 +408,34 @@
     font-size: 1.5rem;
   }
 
-  .control-panel {
-    flex-direction: column;
+  .control-row {
+    gap: 0.5rem;
   }
 
-  .form-group {
+  .form-group-compact {
     min-width: 100%;
     max-width: 100%;
+    order: 1;
   }
 
-  .date-pickers {
+  .preset-group {
     width: 100%;
-    min-width: 100%;
+    order: 3;
+    margin-left: 0;
+
+    .preset-chips ::ng-deep .mdc-evolution-chip-set__chips {
+      justify-content: flex-start;
+    }
+  }
+
+  .date-field-group,
+  .date-nav-button {
+    order: 2;
+  }
+
+  .date-field-group {
+    min-width: 110px;
+    max-width: 130px;
   }
 
   .chart-container {

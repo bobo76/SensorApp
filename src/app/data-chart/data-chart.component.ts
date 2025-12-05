@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   standalone: true,
@@ -26,6 +27,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatNativeDateModule,
     MatButtonModule,
     MatIconModule,
+    MatChipsModule,
   ],
   templateUrl: './data-chart.component.html',
   styleUrl: './data-chart.component.scss',
@@ -54,6 +56,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
   public errorMessage: string | undefined;
   public startDate: Date;
   public endDate: Date;
+  public activePreset: string | null = null;
 
   public historicalData: SensorData[] = [];
   private service = inject(DataChartService);
@@ -97,12 +100,49 @@ export class DataChartComponent implements OnInit, OnDestroy {
   }
 
   onDateChange(): void {
+    // Clear active preset when manually changing dates
+    this.activePreset = null;
+
     if (this.selectedHost && this.startDate && this.endDate) {
       this.loadChartData(this.selectedHost);
     }
   }
 
+  applyPreset(preset: string | null): void {
+    if (!preset) return;
+
+    // Set end date to today
+    this.endDate = new Date();
+
+    // Calculate start date based on preset
+    this.startDate = new Date();
+    switch (preset) {
+      case '24h':
+        this.startDate.setHours(this.startDate.getHours() - 24);
+        break;
+      case '7d':
+        this.startDate.setDate(this.startDate.getDate() - 7);
+        break;
+      case '30d':
+        this.startDate.setDate(this.startDate.getDate() - 30);
+        break;
+      case '90d':
+        this.startDate.setDate(this.startDate.getDate() - 90);
+        break;
+      default:
+        return;
+    }
+
+    // Reload chart data with new date range
+    if (this.selectedHost) {
+      this.loadChartData(this.selectedHost);
+    }
+  }
+
   navigateDateRange(direction: 'previous' | 'next'): void {
+    // Clear active preset when navigating
+    this.activePreset = null;
+
     // Calculate the number of days between start and end
     const daysDifference = Math.ceil(
       (this.endDate.getTime() - this.startDate.getTime()) /
@@ -278,6 +318,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
       pointHoverBorderWidth: 2,
       fill: false,
       tension: 0.4,
+      spanGaps: false,
     });
 
     datasets.push({
