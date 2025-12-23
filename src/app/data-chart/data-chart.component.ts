@@ -14,6 +14,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   standalone: true,
@@ -28,6 +29,7 @@ import { MatChipsModule } from '@angular/material/chips';
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './data-chart.component.html',
   styleUrl: './data-chart.component.scss',
@@ -54,16 +56,21 @@ export class DataChartComponent implements OnInit, OnDestroy {
   public selectedHost: string | undefined = undefined;
   public hosts: Observable<ArduinoUnit[]> | undefined = undefined;
   public errorMessage: string | undefined;
+  public isLoading: boolean = false;
   public startDate: Date;
   public endDate: Date;
   public activePreset: string | null = null;
 
   public historicalData: SensorData[] = [];
+  public currentTemperature: number | undefined;
+  public currentHumidity: number | undefined;
+  public lastUpdated: string | undefined;
   private service = inject(DataChartService);
   private arduinoService = inject(ArduinoService);
   private themeService = inject(ThemeService);
   private destroy$ = new Subject<void>();
   private isDarkMode: boolean = false;
+  private resizeHandler = this.onWindowResize.bind(this);
 
   constructor() {
     // Set end date to today
@@ -89,7 +96,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
       });
 
     // Handle window resize for responsive chart
-    window.addEventListener('resize', this.onWindowResize.bind(this));
+    window.addEventListener('resize', this.resizeHandler);
 
     // Set initial host
     this.selectedHost = 'albert.local';
@@ -247,13 +254,31 @@ export class DataChartComponent implements OnInit, OnDestroy {
     const startDateStr = this.startDate.toISOString();
     const endDateStr = this.endDate.toISOString();
 
+    this.isLoading = true;
+    this.errorMessage = undefined;
+
     this.service
       .fetchHistoricalData(machineName, startDateStr, endDateStr)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.historicalData = data;
-          this.errorMessage = undefined;
+          this.isLoading = false;
+
+          // Extract latest values (last item in array)
+          if (data.length > 0) {
+            const latestReading = data[data.length - 1];
+            const temp = Number(latestReading.temperature);
+            const hum = Number(latestReading.humidity);
+
+            this.currentTemperature = isNaN(temp) ? undefined : temp;
+            this.currentHumidity = isNaN(hum) ? undefined : hum;
+            this.lastUpdated = latestReading.creationDate;
+          } else {
+            this.currentTemperature = undefined;
+            this.currentHumidity = undefined;
+            this.lastUpdated = undefined;
+          }
 
           // Destroy existing chart before creating a new one
           if (this.chart) {
@@ -309,6 +334,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
           });
         },
         error: (error) => {
+          this.isLoading = false;
           this.errorMessage = 'Failed to load sensor data. Please try again.';
           console.error('Error fetching data', error);
         },
@@ -320,7 +346,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
 
     // Remove resize listener
-    window.removeEventListener('resize', this.onWindowResize.bind(this));
+    window.removeEventListener('resize', this.resizeHandler);
 
     if (this.chart) {
       this.chart.destroy();
@@ -329,6 +355,12 @@ export class DataChartComponent implements OnInit, OnDestroy {
 
   trackByHostId(_index: number, host: ArduinoUnit): number {
     return host.id;
+  }
+
+  formatLastUpdated(): string {
+    if (!this.lastUpdated) return '';
+    const date = new Date(this.lastUpdated);
+    return formatDate(date, 'MMM d, y, h:mm a', 'en-US');
   }
 
   private formatDate(rawDate: string): string {

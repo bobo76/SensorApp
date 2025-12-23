@@ -88,6 +88,35 @@
   </div>
 
   <div class="chart-container">
+    <div *ngIf="isLoading" class="loading-overlay">
+      <mat-spinner diameter="60"></mat-spinner>
+      <p class="loading-text">Loading sensor data...</p>
+    </div>
     <canvas id="MyChart">{{ chart }}</canvas>
+  </div>
+
+  <div *ngIf="currentTemperature !== undefined && currentHumidity !== undefined" class="current-values">
+    <div class="value-card temperature-card">
+      <div class="value-icon">
+        <mat-icon>thermostat</mat-icon>
+      </div>
+      <div class="value-content">
+        <div class="value-label">Temperature</div>
+        <div class="value-number">{{ currentTemperature.toFixed(1) }}<span class="value-unit">°C</span></div>
+      </div>
+    </div>
+    <div class="value-card humidity-card">
+      <div class="value-icon">
+        <mat-icon>water_drop</mat-icon>
+      </div>
+      <div class="value-content">
+        <div class="value-label">Humidity</div>
+        <div class="value-number">{{ currentHumidity.toFixed(1) }}<span class="value-unit">%</span></div>
+      </div>
+    </div>
+    <div class="last-updated">
+      <mat-icon class="update-icon">schedule</mat-icon>
+      Last updated: {{ formatLastUpdated() }}
+    </div>
   </div>
 </div>
