@@ -341,8 +341,8 @@ export class DataChartComponent implements OnInit, OnDestroy {
     if (rangeInHours <= 24) {
       return formatDate(rawDate, 'HH:mm', 'en-US');
     }
-    // For longer ranges: keep the current format
-    return formatDate(rawDate, 'yyyy-MM-dd HH:mm', 'en-US');
+    // For longer ranges: show date only without hours
+    return formatDate(rawDate, 'yyyy-MM-dd', 'en-US');
   }
 
   private prepareChartData(data: SensorData[], machineName: string) {
