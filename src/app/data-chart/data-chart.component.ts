@@ -122,22 +122,28 @@ export class DataChartComponent implements OnInit, OnDestroy {
   applyPreset(preset: string | null): void {
     if (!preset) return;
 
-    // Set end date to today
-    this.endDate = new Date();
-
-    // Calculate start date based on preset
-    this.startDate = new Date();
+    // Calculate start and end dates based on preset
     switch (preset) {
       case '24h':
-        this.startDate.setHours(this.startDate.getHours() - 24);
+        // Set to today from 00:00 to 24:00 (midnight to midnight)
+        this.startDate = new Date();
+        this.startDate.setHours(0, 0, 0, 0);
+        this.endDate = new Date();
+        this.endDate.setHours(23, 59, 59, 999);
         break;
       case '7d':
+        this.endDate = new Date();
+        this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 7);
         break;
       case '30d':
+        this.endDate = new Date();
+        this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 30);
         break;
       case '90d':
+        this.endDate = new Date();
+        this.startDate = new Date();
         this.startDate.setDate(this.startDate.getDate() - 90);
         break;
       default:
@@ -326,11 +332,29 @@ export class DataChartComponent implements OnInit, OnDestroy {
   }
 
   private formatDate(rawDate: string): string {
+    // Calculate the time range in hours
+    const rangeInHours = Math.abs(
+      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60)
+    );
+
+    // For 24h or less: show time only in HH:mm format
+    if (rangeInHours <= 24) {
+      return formatDate(rawDate, 'HH:mm', 'en-US');
+    }
+    // For longer ranges: keep the current format
     return formatDate(rawDate, 'yyyy-MM-dd HH:mm', 'en-US');
   }
 
   private prepareChartData(data: SensorData[], machineName: string) {
     const colors = this.getThemeColors();
+
+    // Calculate the time range in hours to determine line tension
+    const rangeInHours = Math.abs(
+      (this.endDate.getTime() - this.startDate.getTime()) / (1000 * 60 * 60)
+    );
+    // For 24h or less: use straight lines (no smoothing)
+    // For longer ranges: use smooth curves
+    const lineTension = rangeInHours <= 24 ? 0 : 0.4;
 
     // Create maps from formatted date to value for temperature and humidity
     const tempMap = new Map<string, number>();
@@ -364,7 +388,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
       pointHoverBorderColor: '#ffffff',
       pointHoverBorderWidth: 2,
       fill: false,
-      tension: 0.4,
+      tension: lineTension,
       spanGaps: false,
     });
 
@@ -380,7 +404,7 @@ export class DataChartComponent implements OnInit, OnDestroy {
       pointHoverBorderColor: '#ffffff',
       pointHoverBorderWidth: 2,
       fill: false,
-      tension: 0.4,
+      tension: lineTension,
     });
 
     return { labels: allDates, datasets };
